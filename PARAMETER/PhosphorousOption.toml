@@ -1,9 +1,18 @@
 [path]
 	InputConcentration = "D:\\JOE\\MAIN\\MODELS\\PHOSPHOROUS\\PhosporousTransferIndices\\DATA\\INPUT\\concentration"
 	InputDischarge = "D:\\JOE\\MAIN\\MODELS\\PHOSPHOROUS\\PhosporousTransferIndices\\DATA\\INPUT\\discharge"
+	InputSiteInfo = "D:\\JOE\\MAIN\\MODELS\\PHOSPHOROUS\\PhosporousTransferIndices\\DATA\\INPUT\\SiteInfo.csv"
 	OutputPath =  "D:\\JOE\\MAIN\\MODELS\\PHOSPHOROUS\\PhosporousTransferIndices\\DATA\\OUTPUT"
 	OutputPlot = "D:\\JOE\\MAIN\\MODELS\\PHOSPHOROUS\\PhosporousTransferIndices\\DATA\\OUTPUT\\Plot"
 
 [param]
 	Percentile = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95]
+	QminTreshold = 0.04 # minimum value of Q [m3 s-1]
+	PminTreshold = 0.01
+	"🎏_FilterData" = true # <false> || <true>. If true than Q < QminTreshold will be removed.
+	NoValue = -9999
+	MinDataPointPerSite = 10
 
+[plot]
+	"🎏_Plot" = true
+	"🎏_PlotLog1p" = false

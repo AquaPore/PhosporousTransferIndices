@@ -7,6 +7,7 @@ export PHOSPHOROUS_START
 include("ReadToml.jl")
 include("Table.jl")
 include("Plot.jl")
+include("Baseflow.jl")
 
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	#		FUNCTION : PHOSPHOROUS_START
@@ -97,13 +98,15 @@ include("Plot.jl")
                   P      = convert(Vector{Float64}, Tables.getcolumn(Data_P, :value))
 
 				# Matching dates of concentration of P and Q
-					Date_P, P, Q, QmatchP, QₓP = PhosphorusTransferIndices.MATCHING_DATES!(;option.path.OutputPath, iiSite_P, Date_P, option.param, P, Date_Q, Q, 🎏_GoodQ)
+					Date_P, P, QmatchP, QₓP = PhosphorusTransferIndices.MATCHING_DATES!(;option.path.OutputPath, iiSite_P, Date_P, option.param, P, Date_Q, Q, 🎏_GoodQ)
 
 				NdataPerSite_P, NdataPerSite_Q, NdataPerSite_QₓP, P_DeliveryIndex, P_Max, P_Min, P_MobilizationIndex, Percentile_P, Percentile_Q, Percentile_QmatchP, Percentile_QₓP, Q_Max, Q_Min = STATISTICS(;iSite, NdataPerSite_P, NdataPerSite_Q, NdataPerSite_QₓP, Npercentile, P, P_DeliveryIndex, P_Max, P_Min, P_MobilizationIndex, option.param, Percentile_P, Percentile_Q, Percentile_QmatchP, Percentile_QₓP, Q, Q_Max, Q_Min, QmatchP, QₓP)
 
+				Baseflow, BaseFlow_LocalMinima = baseflows.BASEFLOW(;Q, Date_Q, option.baseflow)
+
 				# Plotting for every site
 				if option.plot.🎏_Plot && NdataPerSite_QₓP[iSite] ≥ option.param.MinDataPointPerSite && P_Min[iSite] > option.param.NoValue
-					plot.PLOT(;option.path, Date_P, Date_Q, P, QmatchP, QₓP, iiSite_P, option.plot.🎏_PlotLog1p)
+					plot.PLOT(;option.path, Baseflow, BaseFlow_LocalMinima, Date_P, Date_Q, P, Q, QmatchP, QₓP, iiSite_P, option.plot.🎏_PlotLog1p)
 				end
 			end # FOR EVERY SITE
 
@@ -143,7 +146,7 @@ include("Plot.jl")
 				end # if iiDate_Q == Date_P[iDate_P]
 
 			end # for (iDate_Q, iiDate_Q) in enumerate(Date_Q)
-			Q = Q[🎏_GoodQ]
+			# Q = Q[🎏_GoodQ]
 
 			Header = ["Date", "Year", "Month", "Day", "Q[m³ day⁻¹]", "P[g m⁻³]", "QₓP[g day⁻¹]"]
 			Df = Dates.DateFormat("y-m-d")
@@ -151,7 +154,7 @@ include("Plot.jl")
 
 			CSV.write(Path_Output_QₓP, Tables.table([Date_P_Filter year.(Date_P_Filter) month.(Date_P_Filter) day.(Date_P_Filter) QmatchP P_Filter QₓP]), writeheader = true, header = Header, bom = true)
 
-		return Date_P_Filter, P_Filter, Q, QmatchP, QₓP
+		return Date_P_Filter, P_Filter, QmatchP, QₓP
 		end # function MATCHING_DATES!
 	# ------------------------------------------------------------------
 

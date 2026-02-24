@@ -23,6 +23,14 @@ using Configurations, TOML
 		PminTreshold::Float64
 	end # STRUCT PARAM
 
+
+	@option mutable struct BASEFLOW
+		ΔTtimeLag_Min::Int64
+		ΔTtimeLag_Max::Int64
+		🎏_LocalMinima::Bool
+		🎏_Reduce::Bool
+	end
+
 	@option struct PLOT
 		🎏_PlotLog1p::Bool
 		🎏_Plot::Bool
@@ -32,6 +40,7 @@ using Configurations, TOML
 		path::PATH
 		param::PARAM
 		plot::PLOT
+		baseflow::BASEFLOW
 	end
 
 	# ----------------------------

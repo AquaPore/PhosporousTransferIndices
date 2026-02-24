@@ -11,8 +11,15 @@
 	PminTreshold = 0.01
 	"🎏_FilterData" = true # <false> || <true>. If true than Q < QminTreshold will be removed.
 	NoValue = -9999
-	MinDataPointPerSite = 10
+	MinDataPointPerSite = 365
+
+[baseflow]
+   "ΔTtimeLag_Min"  = 5
+   "ΔTtimeLag_Max"  = 8
+   "🎏_LocalMinima" = true
+   "🎏_Reduce"      = false
+
 
 [plot]
 	"🎏_Plot" = true
-	"🎏_PlotLog1p" = false
+	"🎏_PlotLog1p" = true

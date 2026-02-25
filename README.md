@@ -18,7 +18,7 @@ The input data for all site:
 | Latitude   | Latitude of site                                                                  |
 | Longitude  | Longitude of site                                                                 |
 | Region     | Reguion of the world                                                              |
-| FlagModel  | **1** if usiong the site for simulation or **0 ** site not included in simulation |
+| FlagModel  | **1** if usiong the site for simulation or **0** site not included in simulation |
 
 
 

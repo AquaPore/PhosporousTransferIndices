@@ -29,11 +29,13 @@ using Configurations, TOML
 		ΔTtimeLag_Max::Int64
 		🎏_LocalMinima::Bool
 		🎏_Reduce::Bool
+		Perc_IncreaseDecrease::Float64
 	end
 
 	@option struct PLOT
 		🎏_PlotLog1p::Bool
-		🎏_Plot::Bool
+		🎏_Plot_EverySite::Bool
+		🎏_Plot_AllSites::Bool
 	end
 
 	@option struct OPTION

@@ -20,53 +20,69 @@ include("Baseflow.jl")
 				Path_Toml₁ = joinpath(pwd(), Path_Toml)
 				option = readtoml.READTOML(Path_Toml₁)
 
-			# CLEANING `DELEATING PLOTS & TABLES
-				OutputPlots = readdir(option.path.OutputPlot)
-				for iPlot ∈ OutputPlots
-					rm(joinpath(option.path.OutputPlot, iPlot), force=true)
-				end
-				rm(joinpath(option.path.OutputPath, "PerSite", "PerSiteStatistics.csv"), force=true)
+			# CLEANING DELEATING PLOTS & TABLES
 
+				# Cleaning plots
+				if option.plot.🎏_Plot_EverySite
+					OutputPlots = readdir(option.path.OutputPlot)
+					for iPlot ∈ OutputPlots
+						rm(joinpath(option.path.OutputPlot, iPlot), force=true)
+					end
+					rm(joinpath(option.path.OutputPath, "PerSite", "PerSiteStatistics.csv"), force=true)
+				end
+
+				# Cleaning table
 				OutputTables = readdir(joinpath(option.path.OutputPath, "P_Q_Relationship"))
 				for iTable ∈ OutputTables
 					rm(joinpath(option.path.OutputPath, "P_Q_Relationship", iTable), force=true)
 				end
 
+				OutputTables = readdir(joinpath(option.path.OutputPath, "Baseflow"))
+				for iTable ∈ OutputTables
+					rm(joinpath(option.path.OutputPath, "Baseflow", iTable), force=true)
+				end
 
 			# READING FILE & WHICH SITES TO READ <🎏_SiteTrue>
 				Data_SiteInfo = CSV.read(option.path.InputSiteInfo, DataFrame; header = true)
 
-				SiteName_Q = convert(Vector{String}, Tables.getcolumn(Data_SiteInfo, :SiteName_Q))
-				SiteName_P = convert(Vector{String}, Tables.getcolumn(Data_SiteInfo, :SiteName_P))
-				🎏_SiteTrue = convert(Vector{Bool}, Tables.getcolumn(Data_SiteInfo, :FlagModel))
+					SiteName_Q = convert(Vector{String}, Tables.getcolumn(Data_SiteInfo, :SiteName_Q))
+					SiteName_P = convert(Vector{String}, Tables.getcolumn(Data_SiteInfo, :SiteName_P))
+					🎏_SiteTrue = convert(Vector{Bool}, Tables.getcolumn(Data_SiteInfo, :FlagModel))
+					Latitude = convert(Vector{Float64}, Tables.getcolumn(Data_SiteInfo, :Latitude))
+					Longitude = convert(Vector{Float64}, Tables.getcolumn(Data_SiteInfo, :Longitude))
+					Region = convert(Vector{String}, Tables.getcolumn(Data_SiteInfo, :Region))
 
-				# Selecting sites
-				SiteName_Q = SiteName_Q[🎏_SiteTrue]
-				SiteName_P = SiteName_P[🎏_SiteTrue]
+					# Selecting sites
+               SiteName_Q = SiteName_Q[🎏_SiteTrue]
+               SiteName_P = SiteName_P[🎏_SiteTrue]
+               Latitude   = Latitude[🎏_SiteTrue]
+               Longitude  = Longitude[🎏_SiteTrue]
+               Region     = Region[🎏_SiteTrue]
 
-            Nsites     = length(SiteName_Q)
+					Nsites     = length(SiteName_Q)
 
 			# INITIALIZING
-            Npercentile        = length(option.param.Percentile)
-            Percentile_QₓP     = zeros(Float64, Nsites, Npercentile)
-            Percentile_Q       = zeros(Float64, Nsites, Npercentile)
-            Percentile_P       = zeros(Float64, Nsites, Npercentile)
-            Percentile_QmatchP = zeros(Float64, Nsites, Npercentile)
-            P_Min              = zeros(Float64, Nsites)
-            P_Max              = zeros(Float64, Nsites)
-            Q_Min              = zeros(Float64, Nsites)
-            Q_Max              = zeros(Float64, Nsites)
-            NdataPerSite_P     = zeros(Float64, Nsites)
-            NdataPerSite_Q     = zeros(Float64, Nsites)
-            NdataPerSite_QₓP   = zeros(Float64, Nsites)
+            Baseflow_Aver       = zeros(Float64, Nsites)
+            NdataPerSite_P      = zeros(Float64, Nsites)
+            NdataPerSite_Q      = zeros(Float64, Nsites)
+            NdataPerSite_QₓP    = zeros(Float64, Nsites)
+            Npercentile         = length(option.param.Percentile)
             P_DeliveryIndex     = zeros(Float64, Nsites)
+            P_Max               = zeros(Float64, Nsites)
+            P_Min               = zeros(Float64, Nsites)
             P_MobilizationIndex = zeros(Float64, Nsites)
+            Percentile_P        = zeros(Float64, Nsites, Npercentile)
+            Percentile_Q        = zeros(Float64, Nsites, Npercentile)
+            Percentile_QmatchP  = zeros(Float64, Nsites, Npercentile)
+            Percentile_QₓP      = zeros(Float64, Nsites, Npercentile)
+            Q_Max               = zeros(Float64, Nsites)
+            Q_Min               = zeros(Float64, Nsites)
 
 			PsitesList = []
 
 			# FOR EVERY SITE
 			for (iSite, iiSite) in enumerate(SiteName_Q)
-				println("==== $iiSite ====")
+				# println("==== $iiSite ====")
 
 				# Abstracting discharge: Q
 					Path_Input_Discharge = joinpath(pwd(), option.path.InputDischarge, iiSite)
@@ -98,19 +114,28 @@ include("Baseflow.jl")
                   P      = convert(Vector{Float64}, Tables.getcolumn(Data_P, :value))
 
 				# Matching dates of concentration of P and Q
-					Date_P, P, QmatchP, QₓP = PhosphorusTransferIndices.MATCHING_DATES!(;option.path.OutputPath, iiSite_P, Date_P, option.param, P, Date_Q, Q, 🎏_GoodQ)
+					Date_P, P, QmatchP, QₓP = PhosphorusTransferIndices.MATCHING_DATES!(;option.path, iiSite_P, Date_P, option.param, P, Date_Q, Q, 🎏_GoodQ)
 
-				NdataPerSite_P, NdataPerSite_Q, NdataPerSite_QₓP, P_DeliveryIndex, P_Max, P_Min, P_MobilizationIndex, Percentile_P, Percentile_Q, Percentile_QmatchP, Percentile_QₓP, Q_Max, Q_Min = STATISTICS(;iSite, NdataPerSite_P, NdataPerSite_Q, NdataPerSite_QₓP, Npercentile, P, P_DeliveryIndex, P_Max, P_Min, P_MobilizationIndex, option.param, Percentile_P, Percentile_Q, Percentile_QmatchP, Percentile_QₓP, Q, Q_Max, Q_Min, QmatchP, QₓP)
+				# Computting Baseflow
+					Baseflow, BaseFlow_LocalMinima = baseflows.BASEFLOW(;Q, Date_Q, option.baseflow)
 
-				Baseflow, BaseFlow_LocalMinima = baseflows.BASEFLOW(;Q, Date_Q, option.baseflow)
+					table.TABLE_BASEFLOW(;Date_Q, Q, Baseflow, iiSite_P, option.path)
+
+				# Statistics
+					Baseflow_Aver, NdataPerSite_P, NdataPerSite_Q, NdataPerSite_QₓP, P_DeliveryIndex, P_Max, P_Min, P_MobilizationIndex, Percentile_P, Percentile_Q, Percentile_QmatchP, Percentile_QₓP, Q_Max, Q_Min = STATISTICS(;Baseflow, Baseflow_Aver, iSite, NdataPerSite_P, NdataPerSite_Q, NdataPerSite_QₓP, Npercentile, option.param, P, P_DeliveryIndex, P_Max, P_Min, P_MobilizationIndex, Percentile_P, Percentile_Q, Percentile_QmatchP, Percentile_QₓP, Q, Q_Max, Q_Min, QmatchP, QₓP)
 
 				# Plotting for every site
-				if option.plot.🎏_Plot && NdataPerSite_QₓP[iSite] ≥ option.param.MinDataPointPerSite && P_Min[iSite] > option.param.NoValue
-					plot.PLOT(;option.path, Baseflow, BaseFlow_LocalMinima, Date_P, Date_Q, P, Q, QmatchP, QₓP, iiSite_P, option.plot.🎏_PlotLog1p)
-				end
+					if option.plot.🎏_Plot_EverySite && NdataPerSite_QₓP[iSite] ≥ option.param.MinDataPointPerSite && P_Min[iSite] > option.param.NoValue
+						plot.PLOT(;option.path, Baseflow, BaseFlow_LocalMinima, Date_P, Date_Q, P, Q, QmatchP, QₓP, iiSite_P, option.plot.🎏_PlotLog1p)
+					end
 			end # FOR EVERY SITE
+			# ------------------------------------------
 
-			table.TABLE_iiSITE(;option.param, option.param.Percentile, P_Min, P_Max, Q_Min, Q_Max, SiteName_Q, PsitesList, Percentile_QₓP, Percentile_Q, Percentile_P, Percentile_QmatchP, option.path.OutputPath, NdataPerSite_P, NdataPerSite_Q, P_DeliveryIndex, P_MobilizationIndex)
+			table.TABLE_iiSITE(;option.param, option.param.Percentile, P_Min, P_Max, Q_Min, Q_Max, SiteName_Q, PsitesList, Percentile_QₓP, Percentile_Q, Percentile_P, Percentile_QmatchP, option.path.OutputPath, NdataPerSite_P, NdataPerSite_Q, P_DeliveryIndex, P_MobilizationIndex, Baseflow_Aver, Latitude, Longitude, Region)
+
+			if option.plot.🎏_Plot_AllSites
+				plot.PLOT_ALLSITES(;P_DeliveryIndex, P_MobilizationIndex, option.path)
+			end
 
 		println("")
 		printstyled("======= End Running phosphorous ========== \n", color = :red)
@@ -121,7 +146,7 @@ include("Baseflow.jl")
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	#		FUNCTION : MATCHING_DATES!
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		function MATCHING_DATES!(;OutputPath, iiSite_P, Date_P, param, P, Date_Q, Q, 🎏_GoodQ)
+		function MATCHING_DATES!(;path, iiSite_P, Date_P, param, P, Date_Q, Q, 🎏_GoodQ)
          Date_P_Filter = []
          P_Filter      = []
          QmatchP       = []
@@ -146,13 +171,9 @@ include("Baseflow.jl")
 				end # if iiDate_Q == Date_P[iDate_P]
 
 			end # for (iDate_Q, iiDate_Q) in enumerate(Date_Q)
-			# Q = Q[🎏_GoodQ]
 
-			Header = ["Date", "Year", "Month", "Day", "Q[m³ day⁻¹]", "P[g m⁻³]", "QₓP[g day⁻¹]"]
-			Df = Dates.DateFormat("y-m-d")
-			Path_Output_QₓP = joinpath(OutputPath, "P_Q_Relationship", "QₓP_" * iiSite_P)
+			table.TABLE_MATHCH_P_Q(;Date_P_Filter, iiSite_P, P_Filter, path, QmatchP, QₓP)
 
-			CSV.write(Path_Output_QₓP, Tables.table([Date_P_Filter year.(Date_P_Filter) month.(Date_P_Filter) day.(Date_P_Filter) QmatchP P_Filter QₓP]), writeheader = true, header = Header, bom = true)
 
 		return Date_P_Filter, P_Filter, QmatchP, QₓP
 		end # function MATCHING_DATES!
@@ -162,15 +183,18 @@ include("Baseflow.jl")
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	#		FUNCTION : PERCENTILE
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		function STATISTICS(;iSite, NdataPerSite_P, NdataPerSite_Q, NdataPerSite_QₓP, Npercentile, P, P_DeliveryIndex, P_Max, P_Min, P_MobilizationIndex, param, Percentile_P, Percentile_Q, Percentile_QmatchP, Percentile_QₓP, Q, Q_Max, Q_Min, QmatchP, QₓP)
+		function STATISTICS(;Baseflow, Baseflow_Aver, iSite, NdataPerSite_P, NdataPerSite_Q, NdataPerSite_QₓP, Npercentile, P, P_DeliveryIndex, P_Max, P_Min, P_MobilizationIndex, param, Percentile_P, Percentile_Q, Percentile_QmatchP, Percentile_QₓP, Q, Q_Max, Q_Min, QmatchP, QₓP)
 
 			# N VALUES
             NdataPerSite_P[iSite]   = length(P[:])
             NdataPerSite_Q[iSite]   = length(Q[:])
             NdataPerSite_QₓP[iSite] = length(QₓP[:])
 
-			Percentile_Q[iSite, 1: Npercentile] = Statistics.quantile(Q[:], param.Percentile)
+			# BASEFLOW
+			Baseflow_Aver[iSite] = Statistics.mean(Baseflow[:])
+			# println(Baseflow_Aver[iSite])
 
+			Percentile_Q[iSite, 1: Npercentile] = Statistics.quantile(Q[:], param.Percentile)
 			if NdataPerSite_QₓP[iSite] ≥ param.MinDataPointPerSite
 				# PERCENTILES
 					Percentile_QₓP[iSite, 1: Npercentile] 	   = Statistics.quantile(QₓP[:], param.Percentile)
@@ -201,7 +225,7 @@ include("Baseflow.jl")
 					Q_Max[iSite] = param.NoValue
 			end
 
-		return NdataPerSite_P, NdataPerSite_Q, NdataPerSite_QₓP, P_DeliveryIndex, P_Max, P_Min, P_MobilizationIndex, Percentile_P, Percentile_Q, Percentile_QmatchP, Percentile_QₓP, Q_Max, Q_Min
+		return Baseflow_Aver, NdataPerSite_P, NdataPerSite_Q, NdataPerSite_QₓP, P_DeliveryIndex, P_Max, P_Min, P_MobilizationIndex, Percentile_P, Percentile_Q, Percentile_QmatchP, Percentile_QₓP, Q_Max, Q_Min
 		end  # function: PERCENTILE
 	# ------------------------------------------------------------------
 

@@ -14,12 +14,13 @@
 	MinDataPointPerSite = 365
 
 [baseflow]
-   "ΔTtimeLag_Min"  = 5
-   "ΔTtimeLag_Max"  = 8
+   "ΔTtimeLag_Min"  = 4 # 3-5
+   "ΔTtimeLag_Max"  = 4
    "🎏_LocalMinima" = true
    "🎏_Reduce"      = false
-
+	Perc_IncreaseDecrease = 0.05
 
 [plot]
-	"🎏_Plot" = true
+	"🎏_Plot_EverySite" = true
+	"🎏_Plot_AllSites" = true
 	"🎏_PlotLog1p" = true

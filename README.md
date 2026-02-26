@@ -49,22 +49,23 @@ In a toml file
 ```
 
 ```toml
-[param]
- Percentile = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95] # Percentile of output file
- "🎏_FilterData" = true # <false> || <true>. If <true> than Q and P will be filtered as below.
-  QminTreshold = 0.04 #  [m ³ s ⁻³] minimum value of Q which are removed for analysis
-  PminTreshold = 0.0001 # [g m⁻³] minimum value of phosphorous data which are removed from analysis
+param]
+	Percentile = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95] # Percentile of output file
+	"🎏_FilterData" = true # <false> || <true>. If <true> than Q and P will be filtered as below.
+		QminTreshold = 0.04 #  [m ³ s ⁻³] minimum value of Q which are removed for analysis
+		PminTreshold = 0.0001 # [g m⁻³] minimum value of phosphorous data which are removed from analysis
 
- NoValue = -9999 # need to be negative. The value is not imporant as the sites witth NoVlue are removed
- MinDataPointPerSite = 365 # Minimum number of observation of sites required to make observation. If the creteria is ot meet than the site is removed
+	NoValue = -9999 # need to be negative. The value is not imporant as the sites witth NoVlue are removed
+	MinDataPointPerSite = 365 # Minimum number of observation of sites required to make observation. If the creteria is ot meet than the site is removed
 
 [baseflow]
    "ΔTtimeLag_Min"  = 4 # [day] windows period were the search for minimum flow is computed
- Perc_IncreaseDecrease = 0.01 # [0-1] assure that between local minima there is a steady increase of decrease and not flat
+	Perc_IncreaseDecrease = 0.01 # [0-1] assure that between local minima there is a steady increase of decrease and not flat
    "🎏_LocalMinima" = true # <true> Use method of finding local minima
    "🎏_Reduce"      = false # <true> Search during period were flow is decreasing
- "🎏_Qvariability" = true # <true> accounting for the variability of the flow: Q_Std / (Q_Max-Q_Min)
- "🎏_LocalMinimaClean" = true # <true> then the local minima needs to be well formed
+	"🎏_Qvariability" = true # <true> accounting for the variability of the flow: Q_Std / (Q_Max-Q_Min)
+	"🎏_LocalMinimaClean" = true # <true> then the local minima needs to be well formed
+
 ```
 
 ## **OUTPUT**

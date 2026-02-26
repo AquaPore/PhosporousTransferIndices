@@ -14,12 +14,13 @@
 The input data for all site:
 
 
-| SiteName_Q | Name of file of  Discharge Q                                                                             |
-| ------------ | ---------------------------------------------------------------------------------------------------------- |
-| SiteName_P | Name of file of  phosphorous                                                                             |
-| Latitude   | Latitude of site (metadata)                                                                              |
-| Longitude  | Longitude of site (metadata)                                                                             |
-| Region     | Reguion of the world (metadata)                                                                          |
+| VARIABLE   |                                               DESCRIPTION                                               |
+| ------------ | :--------------------------------------------------------------------------------------------------------: |
+| SiteName_Q |                                       Name of file of  Discharge Q                                       |
+| SiteName_P |                                       Name of file of  phosphorous                                       |
+| Latitude   |                                       Latitude of site (metadata)                                       |
+| Longitude  |                                       Longitude of site (metadata)                                       |
+| Region     |                                     Reguion of the world (metadata)                                     |
 | FlagModel  | **FlagModel=1** : the site is used for simulation or **FlagModel=0** the site not included in simulation |
 
 ### *INPUT DATA*
@@ -42,7 +43,7 @@ For every site:
 
 ### **OPTION*
 
-In a toml file
+The mainn options in a toml file
 
 ```JULIA
 "/PARAMETER"
@@ -79,9 +80,10 @@ param]
 ```
 
 
-| Date                  | Date              |
-| ----------------------- | ------------------- |
-| Q[m³ day⁻¹]        | Discharge         |
+| VARIABLE              |    DESCRIPTION    |
+| ----------------------- | :-----------------: |
+| Date                  |       Date       |
+| Q[m³ day⁻¹]        |     Discharge     |
 | Baseflow[m³ day⁻¹] | Computed baseflow |
 
 #### *Relashinship between Q and P*
@@ -93,38 +95,40 @@ param]
 This is finding dates which simultaneously have data on Q (discharge) & P (phosphorous)
 
 
-| Date           | Date        |
-| ---------------- | ------------- |
-| Year           | Year        |
-| Month          | Month       |
-| Day            | Day         |
-| Q[m³ day⁻¹] | Dioscharge  |
-| P[g m⁻³      | Phosphorous |
+|    VARIABLE    | DESCRIPTION |
+| :--------------: | :-----------: |
+|      Date      |    Date    |
+|      Year      |    Year    |
+|     Month     |    Month    |
+|      Day      |     Day     |
+| Q[m³ day⁻¹] | DitHscharge |
+|   P[g m⁻³]   | Phosphorous |
 
 #### *Statistics per site*
 
 The following outputs are statistics based on each site
 
 
-| SiteName_Q          | col2Name of site Q                                                                     |
-| --------------------- | ---------------------------------------------------------------------------------------- |
-| SiteName_P          | Name of site P                                                                         |
-| Latitude            | metadata                                                                               |
-| Longitude           | metadata                                                                               |
-| Region              | metadata                                                                               |
-| P_Min               | Minimum value of*P*                                                                    |
-| P_Max               | Maximum value of*P*                                                                    |
-| Q_Min               | Minimum value of Q                                                                     |
-| Q_Max               | Maximum value of Q                                                                     |
-| Number_P            | Number of P data points                                                                |
-| Number_Q            | Number of Q data points                                                                |
-| Baseflow_Avr        | Average value of baseflow                                                              |
-| P_DeliveryIndex     | ((quantile(QₓP,0.95)-quantile(QₓP,0.5))/((quantile(QₓP[:],0.5)-quantile(QₓP,0.05)) |
-| P_MobilizationIndex | quantile(P,0.95)/quantile(P[:],0.05)                                                   |
-| QₓP_5...           | quantile(QxP , 0.05,0.1,...)                                                           |
-| Qall_5...           | For not filtered Q: quantile(Q , 0.05, 0.1,...)                                        |
-| P_5...              | quantile(P , 0.05)                                                                     |
-| QmatchP_5...        | Filtered Q to match the dates of P. quantile(Q , 0.05,0.1,...)                         |
+|      VARIABLE      |                                      DESCRIPTION                                      |
+| :-------------------: | :--------------------------------------------------------------------------------------: |
+|     SiteName_Q     |                                     Name of site Q                                     |
+|     SiteName_P     |                                     Name of site P                                     |
+|      Latitude      |                                        metadata                                        |
+|      Longitude      |                                        metadata                                        |
+|       Region       |                                        metadata                                        |
+|        P_Min        |                                  Minimum value of*P*                                  |
+|        P_Max        |                                  Maximum value of*P*                                  |
+|        Q_Min        |                                   Minimum value of Q                                   |
+|        Q_Max        |                                   Maximum value of Q                                   |
+|      Number_P      |                                Number of P data points                                |
+|      Number_Q      |                                Number of Q data points                                |
+|    Baseflow_Avr    |                               Average value of baseflow                               |
+|   P_DeliveryIndex   | ((quantile(QₓP,0.95)-quantile(QₓP,0.5))/((quantile(QₓP[:],0.5)-quantile(QₓP,0.05)) |
+| P_MobilizationIndex |                          quantile(P,0.95)/quantile(P[:],0.05)                          |
+|      QₓP_5...      |                              quantile(QxP , 0.05,0.1,...)                              |
+|      Qall_5...      |                    For not filtered Q: quantile(Q , 0.05, 0.1,...)                    |
+|       P_5...       |                                   quantile(P , 0.05)                                   |
+|    QmatchP_5...    |             Filtered Q to match the dates of P. quantile(Q , 0.05,0.1,...)             |
 
 ## **Plots**
 

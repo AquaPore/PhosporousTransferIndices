@@ -26,10 +26,11 @@ using Configurations, TOML
 
 	@option mutable struct BASEFLOW
 		ΔTtimeLag_Min::Int64
-		ΔTtimeLag_Max::Int64
 		🎏_LocalMinima::Bool
 		🎏_Reduce::Bool
 		Perc_IncreaseDecrease::Float64
+		🎏_Qvariability::Bool
+		🎏_LocalMinimaClean::Bool
 	end
 
 	@option struct PLOT

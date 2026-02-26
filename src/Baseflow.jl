@@ -9,31 +9,40 @@ module baseflows
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		function BASEFLOW(;Q, Date_Q, baseflow)
 
-			N = length(Q)
+			@assert baseflow.🎏_LocalMinima || baseflow.🎏_Reduce
 
+			N = length(Q)
 			Q_Min = minimum(Q[1:N])
 			Q_Max = maximum(Q[1:N])
 			Q_Std = Statistics.std(Q[1:N])
 
 			ΔQMinMax = Q_Max - Q_Min
 
-			Q_UpOrDown = fill("",N)
-			for iQ =1:N
-				if Q[max(iQ-1,1)] ≥ Q[iQ] ≥ Q[min(iQ+1,N)]
-					Q_UpOrDown[iQ] = "Decrease"
-
-				elseif Q[max(iQ-1,1)] < Q[iQ] < Q[min(iQ+1,N)]
-					Q_UpOrDown[iQ] = "Increase"
-
-				elseif Q[max(iQ-1,1)] ≤ Q[iQ] ≥ Q[min(iQ+1,N)]
-					Q_UpOrDown[iQ] = "Peek"
-
-				elseif Q[max(iQ-1,1)] ≥ Q[iQ] ≤ Q[min(iQ+1,N)]
-					Q_UpOrDown[iQ] = "LocalMinima"
-				else
-					error("Did not find flow direction")
-				end
+			if baseflow.🎏_Qvariability
+				Qvariability = Q_Std / ΔQMinMax
+			else
+				Qvariability = 1.0
 			end
+			println(Qvariability)
+
+			# INCREASE OR DECREASE Q
+				Q_UpOrDown = fill("",N)
+				for iQ =1:N
+					if Q[max(iQ-1,1)] ≥ Q[iQ] ≥ Q[min(iQ+1,N)]
+						Q_UpOrDown[iQ] = "Decrease"
+
+					elseif Q[max(iQ-1,1)] < Q[iQ] < Q[min(iQ+1,N)]
+						Q_UpOrDown[iQ] = "Increase"
+
+					elseif Q[max(iQ-1,1)] ≤ Q[iQ] ≥ Q[min(iQ+1,N)]
+						Q_UpOrDown[iQ] = "Peek"
+
+					elseif Q[max(iQ-1,1)] ≥ Q[iQ] ≤ Q[min(iQ+1,N)]
+						Q_UpOrDown[iQ] = "LocalMinima"
+					else
+						error("Did not find flow direction")
+					end
+				end
 
 			LocalMinima = []
 			iMinima = 1
@@ -41,22 +50,37 @@ module baseflows
 			# Just at the beginning
 			iMinima = findmin(Q[1:baseflow.ΔTtimeLag_Min])[2]
 			append!(LocalMinima , iMinima)
+			for iQ =baseflow.ΔTtimeLag_Min+1:N
 
-			for iQ =2:N
+				# Searching for local minima
 				if Q[iQ-1] ≥ Q[iQ]
 					iMinima = iQ
 				end
 
-				AddDays = floor(10.0 * Q_Std / ΔQMinMax)
+				# Accounting for the variability of the data
+				if baseflow.🎏_Qvariability
+					AddDays = floor(10.0 * Qvariability)
+				else
+					AddDays = 0
+				end
 
-				if (iCount ≥ baseflow.ΔTtimeLag_Min + AddDays) && (Q_UpOrDown[iQ] == "LocalMinima") && ( Q[max(iQ-2,1)] > Q[max(iQ-1,1)]) && ( Q[min(iQ + 2, N)] < Q[min(iQ+1,N)]) && baseflow.🎏_LocalMinima
+				if (iCount ≥ baseflow.ΔTtimeLag_Min + AddDays) && (Q_UpOrDown[iQ] == "LocalMinima") && ( Q[max(iQ-2,1)] > Q[max(iQ-1,1)]) && (Q[min(iQ+2, N)] < Q[min(iQ+1,N)]) && baseflow.🎏_LocalMinima && baseflow.🎏_LocalMinimaClean
 
 					#  Assuring that there is an increase or decrease
-					if abs(Q[LocalMinima[end]] - Q[iQ]) / ΔQMinMax > (Q_Std/ ΔQMinMax) * baseflow.Perc_IncreaseDecrease
+					if abs(Q[LocalMinima[end]] - Q[iQ]) / ΔQMinMax > Qvariability * baseflow.Perc_IncreaseDecrease
 						append!(LocalMinima , iMinima)
 						iCount = 0
 					end
-				elseif (iCount ≥ baseflow.ΔTtimeLag_Max) && (Q_UpOrDown[iQ] == "Decrease") && baseflow.🎏_Reduce
+
+				elseif (iCount ≥ baseflow.ΔTtimeLag_Min + AddDays) && (Q_UpOrDown[iQ] == "LocalMinima") && ( Q[max(iQ-2,1)] > Q[max(iQ-1,1)]) && baseflow.🎏_LocalMinima && !(baseflow.🎏_LocalMinimaClean)
+
+					#  Assuring that there is an increase or decrease
+					if abs(Q[LocalMinima[end]] - Q[iQ]) / ΔQMinMax > Qvariability * baseflow.Perc_IncreaseDecrease
+						append!(LocalMinima , iMinima)
+						iCount = 0
+					end
+
+				elseif (iCount ≥ baseflow.ΔTtimeLag_Min) && (Q_UpOrDown[iQ] == "Decrease") && baseflow.🎏_Reduce
 					if abs(Q[LocalMinima[end]] - Q[iQ]) / ΔQMinMax > baseflow.Perc_IncreaseDecrease
 						append!(LocalMinima , iMinima)
 						iCount = 0

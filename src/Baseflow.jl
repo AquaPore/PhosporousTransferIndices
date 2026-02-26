@@ -23,7 +23,6 @@ module baseflows
 			else
 				Qvariability = 1.0
 			end
-			println(Qvariability)
 
 			# INCREASE OR DECREASE Q
 				Q_UpOrDown = fill("",N)

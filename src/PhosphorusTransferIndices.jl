@@ -1,6 +1,6 @@
 module PhosphorusTransferIndices
 
-using Configurations, TOML, CSV, DataFrames, Dates, Statistics
+using Configurations, TOML, CSV, DataFrames, Dates, Statistics, PDFmerger
 
 export PHOSPHOROUS_START
 
@@ -137,6 +137,14 @@ include("Baseflow.jl")
 				plot.PLOT_ALLSITES(;P_DeliveryIndex, P_MobilizationIndex, option.path)
 			end
 
+			# Combining plots into one pdf
+			if option.plot.🎏_Plot_EverySite
+				Folder_List = readdir(option.path.OutputPlot)
+				cd(option.path.OutputPlot)
+				Path_Output = joinpath(option.path.OutputPath, "MergedPlots", "MergedPlots.pdf")
+				PDFmerger.merge_pdfs(Folder_List, Path_Output)
+			end
+
 		println("")
 		printstyled("======= End Running phosphorous ========== \n", color = :red)
 		end # function PHOSPHOROUS_START
@@ -202,7 +210,7 @@ include("Baseflow.jl")
 					Percentile_QmatchP[iSite, 1:Npercentile]  = Statistics.quantile(QmatchP[:], param.Percentile)
 
 				# INDEXES
-					P_DeliveryIndex[iSite] =  ( quantile(QₓP[:], 0.95) - quantile(QₓP[:], 0.5)) / (quantile(QₓP[:], 0.5) - quantile(QₓP[:], 0.05))
+					P_DeliveryIndex[iSite] =  (quantile(QₓP[:], 0.95) - quantile(QₓP[:], 0.5)) / (quantile(QₓP[:], 0.5) - quantile(QₓP[:], 0.05))
 
 					P_MobilizationIndex[iSite] = quantile(P[:], 0.95) / quantile(P[:], 0.05)
 

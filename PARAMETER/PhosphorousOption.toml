@@ -25,5 +25,4 @@
 [plot]
 	"🎏_Plot_EverySite" = true
 	"🎏_Plot_AllSites" = true
-
-	"🎏_PlotLog1p" = true # Plot by using log transforemation
+	"🎏_PlotLog1p" = false # Plot by using log transforemation

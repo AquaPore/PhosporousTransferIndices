@@ -17,7 +17,7 @@ module table
 				end
 			end  # for iT=1:length(P_Min)
 
-			Header = ["SiteName_Q", "SiteName_P", "Latitude", "Longitude", "Region", "P_Min", "P_Max", "Q_Min", "Q_Max", "Number_P", "Number_Q", "Baseflow", "P_DeliveryIndex", "P_MobilizationIndex"]
+			Header = ["SiteName_Q", "SiteName_P", "Latitude", "Longitude", "Region", "P_Min", "P_Max", "Q_Min", "Q_Max", "Number_P", "Number_Q", "Baseflow_Avr", "P_DeliveryIndex", "P_MobilizationIndex"]
 
 			HeaderVariables = ["QₓP_", "Qall_", "P_", "QmatchP_"]
 
